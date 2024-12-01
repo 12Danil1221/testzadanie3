@@ -7,7 +7,7 @@ if ($dataToInsert === null) {
     die('Ошибка декодирования JSON');
 }
 
-// Пример кода для вставки данных в базу данных
+//Код для вставки данных в базу данных
 try {
     // Подключение к базе данных
     $pdo = new PDO('mysql:host=localhost;dbname=test2','root','');
@@ -17,7 +17,7 @@ try {
     $stmt = $pdo->prepare("INSERT INTO comments (postId, id, name, email, body) VALUES (:postId, :id, :name, :email, :body) ON DUPLICATE KEY UPDATE postId = VALUES(postId)");
 
     foreach ($dataToInsert as $row) {
-        // Убедитесь, что все необходимые поля существуют
+        // Убеждаемся, что все необходимые поля существуют
         if (isset($row['postId'], $row['id'], $row['name'], $row['email'], $row['body'])) {
             $stmt->execute([
                 ':postId' => $row['postId'],
