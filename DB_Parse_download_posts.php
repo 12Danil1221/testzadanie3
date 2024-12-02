@@ -1,30 +1,34 @@
 <?php  
-$jsonData = @file_get_contents('https://jsonplaceholder.typicode.com/posts');
+require './db_connect/Database.php';
+$db = new Database();
+
+$jsonData = file_get_contents('https://jsonplaceholder.typicode.com/posts');
 if($jsonData == false){
     echo "Ошибка при получении данных из API";
 }
 $dataToInsert = json_decode($jsonData, true);
-if($dataToInsert === null){
-    echo "Ошибка декодирования JSON";
-}
-$pdo = new PDO('mysql:host=localhost;dbname=test2','root','');
-$stmt = $pdo->prepare("INSERT INTO posts(userId, id, title, body) VALUES (:userId, :id, :title, :body) ON DUPLICATE KEY UPDATE userId = VALUES(userId)");
 
-$pdo->beginTransaction();
-try{
-foreach ($dataToInsert as $row) {
-    if(isset($row['userId'], $row['id'], $row['title'], $row['body'])){
-        $stmt->execute([
-            ':userId' => $row['userId'],
-            ':id' => $row['id'],
-            ':title' => $row['title'],
-            ':body' => $row['body']
-        ]);
-    }else{
-        echo "Error: Недостаточно данных";
-    }
+// Проверьте, что данные были успешно декодированы
+if ($dataToInsert === null) {
+    die('Ошибка декодирования JSON');
 }
+
+
+$db->beginTransaction();
+try{
+    foreach ($dataToInsert as $row) {
+        if(isset($row['userId'], $row['id'], $row['title'], $row['body'])){
+            $db->execute("INSERT INTO posts(userId, id, title, body) VALUES (:userId, :id, :title, :body) ON DUPLICATE KEY UPDATE userId = VALUES(userId)", [
+                ':userId' => $row['userId'],
+                ':id' => $row['id'],
+                ':title' => $row['title'],
+                ':body' => $row['body']
+            ]);
+        }else{
+            echo "Error: Недостаточно данных";
+        }
+    }
 } catch(Exception $e){
-    $pdo->rollBack();
-    echo "Ошибка при вставке данных: " . $e->getMessage();
+    $db->rollBack();
+    echo "Ошибка: " . $e->getMessage();
 }
