@@ -4,7 +4,9 @@ if($jsonData == false){
     echo "Ошибка при получении данных из API";
 }
 $dataToInsert = json_decode($jsonData, true);
-
+if($dataToInsert === null){
+    echo "Ошибка декодирования JSON";
+}
 $pdo = new PDO('mysql:host=localhost;dbname=test2','root','');
 $stmt = $pdo->prepare("INSERT INTO posts(userId, id, title, body) VALUES (:userId, :id, :title, :body) ON DUPLICATE KEY UPDATE userId = VALUES(userId)");
 
