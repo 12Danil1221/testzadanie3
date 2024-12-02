@@ -10,9 +10,9 @@ class Database{
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
     public function execute($query, $params = []){
-        $query = $this->pdo->prepare($query);
-        $query->execute($params);
-        return $query;
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($params);
+        return $stmt;
     }
     public function beginTransaction(){
         $this->pdo->beginTransaction();
