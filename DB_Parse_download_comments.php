@@ -4,21 +4,17 @@ if($jsonData == false){
     echo "Ошибка при получении данных из API";
 }
 $dataToInsert = json_decode($jsonData, true);
-
 // Проверьте, что данные были успешно декодированы
 if ($dataToInsert === null) {
     die('Ошибка декодирования JSON');
 }
 
-//Код для вставки данных в базу данных
-try {
     // Подключение к базе данных
     $pdo = new PDO('mysql:host=localhost;dbname=test2','root','');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     // Подготовка SQL запроса
     $stmt = $pdo->prepare("INSERT INTO comments (postId, id, name, email, body) VALUES (:postId, :id, :name, :email, :body) ON DUPLICATE KEY UPDATE postId = VALUES(postId)");
 
+try{
     foreach ($dataToInsert as $row) {
         // Убеждаемся, что все необходимые поля существуют
         if (isset($row['postId'], $row['id'], $row['name'], $row['email'], $row['body'])) {
@@ -34,6 +30,6 @@ try {
             echo "Недостаточно данных для вставки в базу данных.";
         }
     }
-} catch (PDOException $e) {
-    echo 'Ошибка: ' . $e->getMessage();
+} catch (Exception $e) {
+    echo "Ошибка при вставке данных в базу данных: " . $e->getMessage();
 }
