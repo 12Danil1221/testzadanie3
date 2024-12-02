@@ -1,5 +1,8 @@
 <?php  
-$jsonData = file_get_contents('https://jsonplaceholder.typicode.com/comments');
+$jsonData = @file_get_contents('https://jsonplaceholder.typicode.com/comments');
+if($jsonData == false){
+    echo "Ошибка при получении данных из API";
+}
 $dataToInsert = json_decode($jsonData, true);
 
 // Проверьте, что данные были успешно декодированы
