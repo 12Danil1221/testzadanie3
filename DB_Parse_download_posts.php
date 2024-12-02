@@ -1,5 +1,8 @@
 <?php  
-$jsonData = file_get_contents('https://jsonplaceholder.typicode.com/posts');
+$jsonData = @file_get_contents('https://jsonplaceholder.typicode.com/posts');
+if($jsonData == false){
+    echo "Ошибка при получении данных из API";
+}
 $dataToInsert = json_decode($jsonData, true);
 
 $pdo = new PDO('mysql:host=localhost;dbname=test2','root','');
