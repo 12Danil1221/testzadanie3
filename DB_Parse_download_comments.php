@@ -14,6 +14,7 @@ if ($dataToInsert === null) {
     // Подготовка SQL запроса
     $stmt = $pdo->prepare("INSERT INTO comments (postId, id, name, email, body) VALUES (:postId, :id, :name, :email, :body) ON DUPLICATE KEY UPDATE postId = VALUES(postId)");
 
+$pdo->beginTransaction();
 try{
     foreach ($dataToInsert as $row) {
         // Убеждаемся, что все необходимые поля существуют
