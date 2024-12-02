@@ -1,4 +1,7 @@
-<?php  
+<?php
+//Создание класса Database
+$db = new Database();
+
 $jsonData = @file_get_contents('https://jsonplaceholder.typicode.com/comments');
 if($jsonData == false){
     echo "Ошибка при получении данных из API";
@@ -8,18 +11,13 @@ $dataToInsert = json_decode($jsonData, true);
 if ($dataToInsert === null) {
     die('Ошибка декодирования JSON');
 }
-
-    // Подключение к базе данных
-    $pdo = new PDO('mysql:host=localhost;dbname=test2','root','');
-    // Подготовка SQL запроса
-    $stmt = $pdo->prepare("INSERT INTO comments (postId, id, name, email, body) VALUES (:postId, :id, :name, :email, :body) ON DUPLICATE KEY UPDATE postId = VALUES(postId)");
-
-$pdo->beginTransaction();
-try{
+    
+    $db->beginTransaction();
+    try{
     foreach ($dataToInsert as $row) {
-        // Убеждаемся, что все необходимые поля существуют
+        // Убедитесь, что все необходимые поля существуют
         if (isset($row['postId'], $row['id'], $row['name'], $row['email'], $row['body'])) {
-            $stmt->execute([
+            $db->execute("INSERT INTO comments (postId, id, name, email, body) VALUES (:postId, :id, :name, :email, :body) ON DUPLICATE KEY UPDATE postId = VALUES(postId)",[
                 ':postId' => $row['postId'],
                 ':id' => $row['id'],
                 ':name' => $row['name'],
@@ -32,5 +30,6 @@ try{
         }
     }
 } catch (Exception $e) {
-    echo "Ошибка при вставке данных в базу данных: " . $e->getMessage();
+    $db->rollBack();
+    echo "Ошибка: " . $e->getMessage();
 }
