@@ -1,5 +1,5 @@
 <?php  
-require './db_connect/Database.php';
+//Создание класса Database
 $db = new Database();
 
 $jsonData = file_get_contents('https://jsonplaceholder.typicode.com/posts');
