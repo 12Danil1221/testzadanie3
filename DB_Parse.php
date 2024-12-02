@@ -18,24 +18,25 @@
             <input type="text" name="search">
             <button type="submit" name="search_button">Search</button>
         </form>
+
     </div>
     <?php  
+        require './db_connect/Database.php';
+        $db = new Database();
+
         if(isset($_POST['search_button'])){
             $search = $_POST['search'];
 
             // Проверяем, что введено более 3 символов
             if(strlen($search) > 3){
             // Подготавливаем SQL-запрос
-            $pdo = new PDO('mysql:host=localhost;dbname=test2','root','');
-            $stmt = $pdo->prepare("
+            $results = $db->execute("
             SELECT posts.*, comments.body
             FROM posts 
             JOIN comments ON posts.userId = comments.postId 
             WHERE comments.body LIKE :search
-            ");
-            $stmt->execute(['search' => '%'. $search .'%']);
+            ",['search' => '%'. $search .'%'])->fetchAll(PDO::FETCH_ASSOC);
             
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo "<table border=1>";
             echo "<tr><th></th><th>Заголовок</th>";
             echo "<th>Комментарий</th>";
@@ -51,19 +52,20 @@
         }else{
             echo "Вы ввели меньше 3 символов";
         }
-    }
+
+    }else{ 
+        echo "Вы не ввели данные для поиска";
+    };
 
         if(isset($_POST['submit']) || isset($_POST['submit2'])){
             require './DB_Parse_download_comments.php';
-            $pdo = new PDO('mysql:host=localhost;dbname=test2','root','');
-
-
-            $stmt = $pdo->query("SELECT * FROM comments");
-            $comments = $stmt->fetchAll(PDO::FETCH_ASSOC); // Получаем все данные в виде ассоциативного массива
+                        
+            // Подготавливаем SQL-запрос
+            $comments = $db->execute("SELECT * FROM comments")->fetchAll(PDO::FETCH_ASSOC); // Получаем все данные в виде ассоциативного массива
 
             //Проверка наличия данных
             if(count($comments) > 0){
-                echo "<h2>Все записи:</h2>";
+                echo "<h2>Все комментарии:</h2>";
                 echo "<table border='1'>";
                 echo "<tr><th>PostId</th><th>ID</th><th>Name</th><th>Email</th><th>Body</th></tr>";
 
@@ -79,21 +81,18 @@
             }else{
                 echo "Нет данных для отображения";
             }
-        }else{
-            echo "Нажмите на кнопку для отображения данных";
-        };
+        }
 
 ?>
     <?php
         if(isset($_POST['submit']) || isset($_POST['submit2'])){
             require './DB_Parse_download_posts.php';
 
-            $stmt = $pdo->query("SELECT * FROM posts");
-            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC); // Получаем все данные в виде ассоциативного массива
+            $posts = $db->execute("SELECT * FROM posts")->fetchAll(PDO::FETCH_ASSOC);
 
             //Проверка наличия данных
             if(count($posts) > 0){
-        echo "<h2>Все комментарии:</h2>";
+        echo "<h2>Все записи:</h2>";
         echo "<table border='1'>";
         echo "<tr><th>UserId</th><th>ID</th><th>title</th><th>body</th></tr>";
 
@@ -109,8 +108,8 @@
             echo "Нет данных для отображения";
         }
     }
-
     ?>
+
 
 </body>
 
