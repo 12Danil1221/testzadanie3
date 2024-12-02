@@ -10,7 +10,8 @@ if($dataToInsert === null){
 $pdo = new PDO('mysql:host=localhost;dbname=test2','root','');
 $stmt = $pdo->prepare("INSERT INTO posts(userId, id, title, body) VALUES (:userId, :id, :title, :body) ON DUPLICATE KEY UPDATE userId = VALUES(userId)");
 
-
+$pdo->beginTransaction();
+try{
 foreach ($dataToInsert as $row) {
     if(isset($row['userId'], $row['id'], $row['title'], $row['body'])){
         $stmt->execute([
@@ -22,4 +23,8 @@ foreach ($dataToInsert as $row) {
     }else{
         echo "Error: Недостаточно данных";
     }
+}
+} catch(Exception $e){
+    $pdo->rollBack();
+    echo "Ошибка при вставке данных: " . $e->getMessage();
 }
